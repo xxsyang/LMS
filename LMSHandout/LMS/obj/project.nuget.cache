@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "hl5l5tnBnpBkTrqbKSskCKBGssDO7xyslrgo5p6u+5ZLms7u6zsSuExjQoNsYKbhWEyQwp1qNt3R8fYCC3vL2g==",
+  "dgSpecHash": "YFsjnZZgtPoiHp4ApKjYYfQhg8kZGmfxHrapHux5BWE+WK6az3nrVTGec2qSZXdalxQpbpJvf0BDkEUw3wBdAA==",
   "success": true,
-  "projectFilePath": "/Users/xsyang/Downloads/LMSHandout/LMS/LMS.csproj",
+  "projectFilePath": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj",
   "expectedPackageFiles": [
     "/Users/xsyang/.nuget/packages/humanizer.core/2.8.26/humanizer.core.2.8.26.nupkg.sha512",
     "/Users/xsyang/.nuget/packages/messagepack/2.1.152/messagepack.2.1.152.nupkg.sha512",

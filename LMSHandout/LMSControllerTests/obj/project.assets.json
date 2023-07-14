@@ -11135,11 +11135,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/xsyang/Downloads/LMSHandout/LMSControllerTests/LMSControllerTests.csproj",
+      "projectUniqueName": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMSControllerTests/LMSControllerTests.csproj",
       "projectName": "LMSControllerTests",
-      "projectPath": "/Users/xsyang/Downloads/LMSHandout/LMSControllerTests/LMSControllerTests.csproj",
+      "projectPath": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMSControllerTests/LMSControllerTests.csproj",
       "packagesPath": "/Users/xsyang/.nuget/packages/",
-      "outputPath": "/Users/xsyang/Downloads/LMSHandout/LMSControllerTests/obj/",
+      "outputPath": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMSControllerTests/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/xsyang/.nuget/NuGet/NuGet.Config"
@@ -11155,8 +11155,8 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "/Users/xsyang/Downloads/LMSHandout/LMS/LMS.csproj": {
-              "projectPath": "/Users/xsyang/Downloads/LMSHandout/LMS/LMS.csproj"
+            "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj": {
+              "projectPath": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj"
             }
           }
         }
@@ -11212,7 +11212,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.305/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.306/RuntimeIdentifierGraph.json"
       }
     }
   }
