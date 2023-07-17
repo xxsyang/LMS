@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using LMS.Models.LMSModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,8 +50,16 @@ namespace LMS.Controllers
         /// false if the department already exists, true otherwise.</returns>
         public IActionResult CreateDepartment(string subject, string name)
         {
-            
-            return Json(new { success = false});
+            var department = new Department
+            {
+                Name = name,
+                Subject = subject
+            };
+
+            db.Departments.Add(department);
+            db.SaveChanges();
+
+            return Json(new { success = true});
         }
 
 
@@ -64,8 +73,15 @@ namespace LMS.Controllers
         /// <returns>The JSON result</returns>
         public IActionResult GetCourses(string subject)
         {
+            var query = from c in db.Courses
+                        join d in db.Departments on c.Department equals d.Subject
+                        select new
+                        {
+                            number = c.Number,
+                            name = c.Name
+                        };
             
-            return Json(null);
+            return Json(query.ToArray());
         }
 
         /// <summary>
@@ -79,9 +95,18 @@ namespace LMS.Controllers
         /// <returns>The JSON result</returns>
         public IActionResult GetProfessors(string subject)
         {
-            
-            return Json(null);
-            
+
+            var query = from p in db.Professors
+                        where p.WorksIn == subject
+                        select new
+                        {
+                            lname = p.LName,
+                            fname = p.FName,
+                            uid = p.UId
+                        };
+
+            return Json(query.ToArray());
+
         }
 
 
@@ -96,8 +121,20 @@ namespace LMS.Controllers
         /// <returns>A JSON object containing {success = true/false}.
         /// false if the course already exists, true otherwise.</returns>
         public IActionResult CreateCourse(string subject, int number, string name)
-        {           
-            return Json(new { success = false });
+        {
+            uint CourseNumber = (uint)number;
+
+            var course = new Course
+            {
+                Department = subject,
+                Number = CourseNumber,
+                Name = name
+            };
+
+            db.Courses.Add(course);
+            db.SaveChanges();
+
+            return Json(new { success = true });
         }
 
 
@@ -119,11 +156,33 @@ namespace LMS.Controllers
         /// a Class offering of the same Course in the same Semester,
         /// true otherwise.</returns>
         public IActionResult CreateClass(string subject, int number, string season, int year, DateTime start, DateTime end, string location, string instructor)
-        {            
+        {
+            uint CourseNumber = (uint)number;
+
+            var newClass = new Class
+            {
+                Season = season,
+                Year = (uint)year,
+                StartTime = (unit)start
+
+            };
+
+            db.Classes.Add(newClass);
+            db.SaveChanges();
+
+            //return Json(new { success = true });
+
             return Json(new { success = false});
         }
 
-
+//        public uint ClassId { get; set; }
+//public string Season { get; set; } = null!;
+//public uint Year { get; set; }
+//public string Location { get; set; } = null!;
+//public TimeOnly StartTime { get; set; }
+//public TimeOnly EndTime { get; set; }
+//public uint Listing { get; set; }
+//public string? TaughtBy { get; set; }
         /*******End code to modify********/
 
     }

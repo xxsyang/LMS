@@ -5,33 +5,49 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="LMS/Controllers/CommonController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="LMS/Controllers/StudentController.cs">
     <Files>
-      <File FileName="LMSControllerTests/UnitTest1.cs" />
-      <File FileName="LMSControllerTests/Usings.cs" />
-      <File FileName="LMS/Controllers/AdministratorController.cs" Line="1" Column="1" />
-      <File FileName="LMS/Controllers/CommonController.cs" Line="66" Column="36" />
-      <File FileName="LMS/Controllers/HomeController.cs" />
-      <File FileName="LMS/Controllers/ProfessorController.cs" />
-      <File FileName="LMS/Controllers/StudentController.cs" />
-      <File FileName="LMS/Models/ApplicationUser.cs" />
-      <File FileName="LMS/Models/ErrorViewModel.cs" />
-      <File FileName="LMS/Views/Professor/Assignment.cshtml" />
-      <File FileName="LMS/Program.cs" Line="31" Column="9" />
-      <File FileName="LMS/Migrations/20230714204500_CreateIdentitySchema.cs" Line="43" Column="97" />
+      <File FileName="LMSControllerTests/UnitTest1.cs" Line="53" Column="16" />
+      <File FileName="LMS/Program.cs" />
+      <File FileName="LMS/Controllers/CommonController.cs" Line="36" Column="1" />
+      <File FileName="LMS/Controllers/AdministratorController.cs" Line="166" Column="40" />
+      <File FileName="LMS/Models/LMSModels/Assignment.cs" Line="1" Column="1" />
+      <File FileName="LMS/Models/LMSModels/Administrator.cs" Line="1" Column="1" />
+      <File FileName="LMS/Models/LMSModels/Department.cs" Line="6" Column="36" />
+      <File FileName="LMS/Models/LMSModels/Course.cs" Line="8" Column="10" />
+      <File FileName="LMS/Models/LMSModels/Class.cs" Line="8" Column="1" />
+      <File FileName="LMS/Controllers/HomeController.cs" Line="1" Column="1" />
+      <File FileName="LMS/Controllers/ProfessorController.cs" Line="1" Column="1" />
+      <File FileName="LMS/Controllers/StudentController.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="LMS">
             <Node name="LMS" expanded="True">
-              <Node name="Controllers" expanded="True" />
+              <Node name="Controllers" expanded="True">
+                <Node name="StudentController.cs" selected="True" />
+              </Node>
               <Node name="Enums" expanded="True" />
               <Node name="Migrations" expanded="True" />
+              <Node name="Models" expanded="True">
+                <Node name="LMSModels" expanded="True" />
+              </Node>
+              <Node name="Properties" expanded="True" />
             </Node>
             <Node name="LMSControllerTests" expanded="True" />
           </Node>
         </State>
+      </Pad>
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
+        <State name="__root__">
+          <Node name="LMS" expanded="True">
+            <Node name="LMSControllerTests" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
