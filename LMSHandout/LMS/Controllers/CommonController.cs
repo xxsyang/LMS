@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using LMS.Models.LMSModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,8 +32,16 @@ namespace LMS.Controllers
         /// </summary>
         /// <returns>The JSON array</returns>
         public IActionResult GetDepartments()
-        {            
-            return Json(null);
+        {
+            var query = from Dept in db.Departments
+                        select new
+                        {
+                            name = Dept.Name,
+                            subject = Dept.Subject
+
+                        };
+
+            return Json(query.ToArray());
         }
 
 
@@ -46,8 +58,24 @@ namespace LMS.Controllers
         /// </summary>
         /// <returns>The JSON array</returns>
         public IActionResult GetCatalog()
-        {            
-            return Json(null);
+
+        {
+            var query = from c in db.Courses
+                        join d in db.Departments on c.Department equals d.Subject
+                        select new
+                        {
+                            subject = d.Subject,
+                            dname = d.Name,
+                            courses = from e in db.Courses
+                                      join f in db.Departments on e.Department equals f.Subject
+                                      select new
+                                      {
+                                          number = e.Number,
+                                          cname = e.Name
+                                      }
+                        };
+
+            return Json(query.ToArray());
         }
 
         /// <summary>
@@ -65,7 +93,23 @@ namespace LMS.Controllers
         /// <param name="number">The course number, as in 5530</param>
         /// <returns>The JSON array</returns>
         public IActionResult GetClassOfferings(string subject, int number)
-        {            
+        {
+
+            var query = from co in db.Courses
+                        join cl in db.Classes on co.CatalogId equals cl.Listing
+                        join p in db.Professors on cl.TaughtBy equals p.UId
+                        where co.Department == subject && co.Number == number
+                        select new
+                        {
+                            season = cl.Season,
+                            year = cl.Year,
+                            location = cl.Location,
+                            start = cl.StartTime,
+                            end = cl.EndTime,
+                            fname = p.FName,
+                            lname = p.LName
+                        };
+                        
             return Json(null);
         }
 
