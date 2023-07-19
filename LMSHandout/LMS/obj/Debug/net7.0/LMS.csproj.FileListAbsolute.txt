@@ -253,3 +253,15 @@
 /Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.pdb
 /Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.genruntimeconfig.cache
 /Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/obj/Debug/net7.0/ref/LMS.dll
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.csproj.AssemblyReference.cache
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.AssemblyInfoInputs.cache
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.AssemblyInfo.cs
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.csproj.CoreCompileInputs.cache
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.MvcApplicationPartsAssemblyInfo.cs
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.MvcApplicationPartsAssemblyInfo.cache
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.RazorAssemblyInfo.cache
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.RazorAssemblyInfo.cs
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.dll
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/refint/LMS.dll
+/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/Debug/net7.0/LMS.pdb
