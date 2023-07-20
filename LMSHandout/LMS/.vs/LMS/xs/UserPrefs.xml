@@ -1,0 +1,45 @@
+﻿<Properties StartupConfiguration="{59AFCF43-EC0A-4DF8-9923-980EA6AD6866}|Default">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Controllers/StudentController.cs">
+    <Files>
+      <File FileName="Models/LMSModels/Enrolled.cs" Line="11" Column="6" />
+      <File FileName="Controllers/StudentController.cs" Line="296" Column="37" />
+      <File FileName="Program.cs" Line="10" Column="2" />
+      <File FileName="Models/LMSModels/Assignment.cs" Line="8" Column="26" />
+      <File FileName="Models/LMSModels/AssignmentCategory.cs" Line="1" Column="1" />
+      <File FileName="Areas/Identity/Pages/Account/Register.cshtml.cs" />
+      <File FileName="Controllers/ProfessorController.cs" Line="1" Column="1" />
+      <File FileName="Controllers/HomeController.cs" Line="10" Column="1" />
+      <File FileName="Controllers/CommonController.cs" Line="160" Column="56" />
+      <File FileName="Models/LMSModels/Submission.cs" Line="13" Column="6" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="LMS">
+            <Node name="LMS">
+              <Node name="Controllers" expanded="True">
+                <Node name="StudentController.cs" selected="True" />
+              </Node>
+              <Node name="Enums" expanded="True" />
+              <Node name="Migrations" expanded="True" />
+              <Node name="Models" expanded="True">
+                <Node name="LMSModels" expanded="True" />
+              </Node>
+              <Node name="Properties" expanded="True" />
+              <Node name="Views" expanded="True" />
+              <Node name="wwwroot" expanded="True" />
+              <Node name="appsettings.json" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.LMS PreferredExecutionTarget="/Applications/Firefox.app" />
+</Properties>
