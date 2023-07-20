@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using LMS.Enums;
 using LMS.Models;
 using LMS.Models.LMSModels;
 using Microsoft.AspNetCore.Authentication;
@@ -194,7 +195,69 @@ namespace LMS.Areas.Identity.Pages.Account
         /// <returns>The uID of the new user</returns>
         string CreateNewUser( string firstName, string lastName, DateTime DOB, string departmentAbbrev, string role )
         {
-            return "unknown";
+            Random rnd = new Random();
+            int num = rnd.Next(0000000, 9999999);
+            string uID = "u" + num.ToString();
+
+            var query = from s in db.Students
+                        select s.UId;
+            var query_1 = from p in db.Professors
+                          select p.UId;
+            var query_2 = from a in db.Administrators
+                          select a.UId;
+
+            
+            var allID = query.Concat(query_1).Concat(query_2);
+
+            foreach(var uid in allID)
+            {
+                while(uid.ToString() == uID)
+                {
+                    num = rnd.Next(0000000, 9999999);
+                    uID = "u" + num.ToString();
+                }
+            }
+
+            if (role == "Administrator")
+            {
+                var administrator = new Administrator
+                {
+                    FName = firstName,
+                    LName = lastName,
+                    Dob = DateOnly.FromDateTime(DOB),
+                    UId = uID
+                };
+                db.Administrators.Add(administrator);
+                db.SaveChanges();
+            }
+            if (role == "Professor")
+            {
+                var prof = new Professor
+                {
+                    FName = firstName,
+                    LName = lastName,
+                    Dob = DateOnly.FromDateTime(DOB),
+                    UId = uID,
+                    WorksIn = departmentAbbrev
+                };
+                db.Professors.Add(prof);
+                db.SaveChanges();
+            }
+            if (role == "Student")
+            {
+                var student = new Student
+                {
+                    FName = firstName,
+                    LName = lastName,
+                    Dob = DateOnly.FromDateTime(DOB),
+                    UId = uID,
+                    Major = departmentAbbrev
+                };
+                db.Students.Add(student);
+                db.SaveChanges();
+            }
+
+            return uID;
         }
 
         /*******End code to modify********/

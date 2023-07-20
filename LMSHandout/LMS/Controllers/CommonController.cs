@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using LMS.Enums;
 using LMS.Models.LMSModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
@@ -66,16 +67,17 @@ namespace LMS.Controllers
                         {
                             subject = d.Subject,
                             dname = d.Name,
-                            courses = from e in db.Courses
-                                      join f in db.Departments on e.Department equals f.Subject
-                                      select new
-                                      {
-                                          number = e.Number,
-                                          cname = e.Name
-                                      }
+                            courses = db.Courses.Where(course => course.Department == d.Subject)
+                                        .Select(course => new
+                                        {
+                                            number = course.Number,
+                                            cname = course.Name
+                                        }).ToArray()
+
                         };
 
             return Json(query.ToArray());
+            
         }
 
         /// <summary>
@@ -154,14 +156,16 @@ namespace LMS.Controllers
         /// <returns>The submission text</returns>
         public IActionResult GetSubmissionText(string subject, int num, string season, int year, string category, string asgname, string uid)
         {
-            var query = from assign in db.Assignments
+            var query = from sub in db.Submissions
+                        join assign in db.Assignments on sub.Assignment equals assign.AssignmentId
                         join ac in db.AssignmentCategories on assign.Category equals ac.CategoryId
                         join c in db.Classes on ac.InClass equals c.ClassId
                         join co in db.Courses on c.Listing equals co.CatalogId
-                        where co.Department == subject && co.Number == num && c.Season == season && c.Year == year && ac.Name == category && assign.Name == asgname
-                        select assign.Contents;
+                        where co.Department == subject && co.Number == num && c.Season == season && c.Year == year && ac.Name == category && assign.Name == asgname && sub.Student == uid
 
-            return Content("");
+                        select sub.SubmissionContents;
+
+            return Content(query.ToString());
         }
 
 
@@ -182,8 +186,38 @@ namespace LMS.Controllers
         /// or an object containing {success: false} if the user doesn't exist
         /// </returns>
         public IActionResult GetUser(string uid)
-        {   
-            return Json(new { success = false });
+        {
+            bool exist = false;
+          
+
+            var getStudentID = from s in db.Students
+                        select s.UId;
+            var getProfID = from p in db.Professors
+                          select p.UId;
+            var getAdminID = from a in db.Administrators
+                          select a.UId;
+
+            if (getStudentID.Contains(uid))
+            {
+                var qurey = from s in db.Students
+                            select s.UId == uid;
+            }
+            else if (getProfID.Contains(uid))
+            {
+                var qurey = from p in db.Professors
+                            select p.UId == uid;
+            }
+            else if (getStudentID.Contains(uid))
+            {
+                var qurey = from a in db.Administrators
+                            select a.UId == uid;
+            }
+            else
+            {
+               
+            }
+
+            return Json(new { success = exist });
         }
 
 

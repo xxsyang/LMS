@@ -59,7 +59,7 @@ namespace LMS.Controllers
             db.Departments.Add(department);
             db.SaveChanges();
 
-            return Json(new { success = true});
+            return Json(new { success = true });
         }
 
 
@@ -80,7 +80,7 @@ namespace LMS.Controllers
                             number = c.Number,
                             name = c.Name
                         };
-            
+
             return Json(query.ToArray());
         }
 
@@ -95,7 +95,7 @@ namespace LMS.Controllers
         /// <returns>The JSON result</returns>
         public IActionResult GetProfessors(string subject)
         {
-
+            
             var query = from p in db.Professors
                         where p.WorksIn == subject
                         select new
@@ -123,6 +123,7 @@ namespace LMS.Controllers
         public IActionResult CreateCourse(string subject, int number, string name)
         {
             uint CourseNumber = (uint)number;
+
 
             var course = new Course
             {
@@ -159,11 +160,15 @@ namespace LMS.Controllers
         {
             uint CourseNumber = (uint)number;
 
+
             var newClass = new Class
             {
                 Season = season,
                 Year = (uint)year,
-                StartTime = (unit)start
+                StartTime = TimeOnly.FromDateTime(start),
+                EndTime = TimeOnly.FromDateTime(end),
+                Location = location,
+                TaughtBy = instructor,
 
             };
 
@@ -172,17 +177,17 @@ namespace LMS.Controllers
 
             //return Json(new { success = true });
 
-            return Json(new { success = false});
+            return Json(new { success = false });
         }
 
-//        public uint ClassId { get; set; }
-//public string Season { get; set; } = null!;
-//public uint Year { get; set; }
-//public string Location { get; set; } = null!;
-//public TimeOnly StartTime { get; set; }
-//public TimeOnly EndTime { get; set; }
-//public uint Listing { get; set; }
-//public string? TaughtBy { get; set; }
+        //        public uint ClassId { get; set; }
+        //public string Season { get; set; } = null!;
+        //public uint Year { get; set; }
+        //public string Location { get; set; } = null!;
+        //public TimeOnly StartTime { get; set; }
+        //public TimeOnly EndTime { get; set; }
+        //public uint Listing { get; set; }
+        //public string? TaughtBy { get; set; }
         /*******End code to modify********/
 
     }
