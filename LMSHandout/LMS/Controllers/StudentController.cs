@@ -97,6 +97,7 @@ namespace LMS.Controllers
 
 
             return Json(query.ToArray());
+            //return Json(null);
         }
 
         /// <summary>
@@ -158,6 +159,7 @@ namespace LMS.Controllers
             }
 
             return Json(result.ToArray());
+            //return Json(null);
         }
 
 
@@ -241,6 +243,7 @@ namespace LMS.Controllers
             db.SaveChanges();
 
             return Json(new { success = submitted });
+            //return Json(null);
         }
 
 
@@ -292,10 +295,12 @@ namespace LMS.Controllers
                 enrolled = true;
                 // add to db
                 db.Enrolleds.Add(enrollment);
+                db.SaveChanges();
             }
             //else enrolled = false;
 
             return Json(new { success = enrolled });
+            //return Json(null);
         }
 
 
@@ -405,6 +410,7 @@ namespace LMS.Controllers
             double gpaValue = grades / gradeCount;
 
             return Json(new { gpa = gpaValue });
+            //return Json(null);
         }
 
         /*******End code to modify********/

@@ -1,29 +1,39 @@
 ﻿<Properties StartupConfiguration="{59AFCF43-EC0A-4DF8-9923-980EA6AD6866}|Default">
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Controllers/StudentController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Controllers/ProfessorController.cs">
     <Files>
-      <File FileName="Models/LMSModels/Enrolled.cs" Line="11" Column="6" />
-      <File FileName="Controllers/StudentController.cs" Line="296" Column="37" />
-      <File FileName="Program.cs" Line="10" Column="2" />
-      <File FileName="Models/LMSModels/Assignment.cs" Line="8" Column="26" />
-      <File FileName="Models/LMSModels/AssignmentCategory.cs" Line="1" Column="1" />
       <File FileName="Areas/Identity/Pages/Account/Register.cshtml.cs" />
-      <File FileName="Controllers/ProfessorController.cs" Line="1" Column="1" />
-      <File FileName="Controllers/HomeController.cs" Line="10" Column="1" />
-      <File FileName="Controllers/CommonController.cs" Line="160" Column="56" />
-      <File FileName="Models/LMSModels/Submission.cs" Line="13" Column="6" />
+      <File FileName="Controllers/ProfessorController.cs" Line="297" Column="13" />
+      <File FileName="Controllers/HomeController.cs" />
+      <File FileName="Controllers/AdministratorController.cs" />
+      <File FileName="Controllers/CommonController.cs" Line="139" Column="46" />
+      <File FileName="Views/Student/Index.cshtml" />
+      <File FileName="Views/Student/Catalog.cshtml" />
+      <File FileName="Views/Student/Class.cshtml" />
+      <File FileName="Views/Student/ClassListings.cshtml" />
+      <File FileName="Controllers/StudentController.cs" />
+      <File FileName="Models/LMSModels/Student.cs" />
+      <File FileName="Models/LMSModels/LMSContext.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="LMS">
-            <Node name="LMS">
+            <Node name="LMS" expanded="True">
+              <Node name="Areas" expanded="True">
+                <Node name="Identity" expanded="True">
+                  <Node name="Pages" expanded="True">
+                    <Node name="Account" expanded="True">
+                      <Node name="Register.cshtml" expanded="True" />
+                    </Node>
+                  </Node>
+                </Node>
+              </Node>
               <Node name="Controllers" expanded="True">
-                <Node name="StudentController.cs" selected="True" />
+                <Node name="ProfessorController.cs" selected="True" />
               </Node>
               <Node name="Enums" expanded="True" />
               <Node name="Migrations" expanded="True" />
@@ -31,7 +41,9 @@
                 <Node name="LMSModels" expanded="True" />
               </Node>
               <Node name="Properties" expanded="True" />
-              <Node name="Views" expanded="True" />
+              <Node name="Views" expanded="True">
+                <Node name="Student" expanded="True" />
+              </Node>
               <Node name="wwwroot" expanded="True" />
               <Node name="appsettings.json" expanded="True" />
             </Node>
@@ -40,6 +52,7 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.ItemProperties.LMS PreferredExecutionTarget="/Applications/Firefox.app" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
 </Properties>
