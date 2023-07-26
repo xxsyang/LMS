@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using LMS.Models.LMSModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -136,7 +138,7 @@ namespace LMS.Controllers
                         where co.Department == subject && co.Number == num && c.Season == season && c.Year == year && ac.Name == category && assign.Name == asgname
                         select assign.Contents;
                         
-            return Content(query.ToString());
+            return Content(query.FirstOrDefault() ?? "");
         }
 
 
@@ -165,7 +167,7 @@ namespace LMS.Controllers
 
                         select sub.SubmissionContents;
 
-            return Content(query.ToString());
+            return Content(query.FirstOrDefault() ?? "");
         }
 
 
@@ -187,34 +189,61 @@ namespace LMS.Controllers
         /// </returns>
         public IActionResult GetUser(string uid)
         {
+            Debug.WriteLine("Get userInfo Connection Successful");
             bool exist = false;
-          
 
             var getStudentID = from s in db.Students
-                        select s.UId;
-            var getProfID = from p in db.Professors
-                          select p.UId;
-            var getAdminID = from a in db.Administrators
-                          select a.UId;
+                               select s.UId;
 
-            if (getStudentID.Contains(uid))
+            var getProfID = from p in db.Professors
+                            select p.UId;
+
+            var getAdminID = from a in db.Administrators
+                             select a.UId;
+
+
+            if (getStudentID.ToArray().Contains(uid))
             {
+                exist = true;
                 var qurey = from s in db.Students
-                            select s.UId == uid;
+                            where s.UId == uid
+                            select new
+                            {
+                                fname = s.FName,
+                                lname = s.LName,
+                                uid = s.UId,
+                                Department = s.Major
+                            };
+                return Json(qurey.First());
             }
-            else if (getProfID.Contains(uid))
+
+            if (getProfID.ToArray().Contains(uid))
             {
+                exist = true;
                 var qurey = from p in db.Professors
-                            select p.UId == uid;
+                            where p.UId == uid
+                            select new
+                            {
+                                fname = p.FName,
+                                lname = p.LName,
+                                uid = p.UId,
+                                Department = p.WorksIn
+                            };
+                return Json(qurey.First());
             }
-            else if (getStudentID.Contains(uid))
+
+            if (getStudentID.ToArray().Contains(uid))
             {
+                exist = true;
                 var qurey = from a in db.Administrators
-                            select a.UId == uid;
-            }
-            else
-            {
-               
+                            where a.UId == uid
+                            select new
+                            {
+                                fname = a.FName,
+                                lname = a.LName,
+                                uid = a.UId
+                            };
+                return Json(qurey.First());
             }
 
             return Json(new { success = exist });
