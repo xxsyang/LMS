@@ -50,7 +50,7 @@
           }
         }
       },
-      "MessagePackAnalyzer/2.1.152": {
+      "MessagePackAnalyzer/2.5.124": {
         "type": "package"
       },
       "Microsoft.AspNetCore.Cryptography.Internal/6.0.6": {
@@ -3530,17 +3530,16 @@
         "messagepack.annotations.nuspec"
       ]
     },
-    "MessagePackAnalyzer/2.1.152": {
-      "sha512": "uJhZlGMkXDaFYsH8V9S6o1EyvsUqB9mpU4DVBXNr0DXZVzZMhuLP1IkLj5xK3EKlaAcvkFkZv3eSvuz360wb3Q==",
+    "MessagePackAnalyzer/2.5.124": {
+      "sha512": "Dxow+fVuBjfpHvMjALZY1cdkbBODRlbUv2je7oLA2Lkzz+lf0+/xPio/9EyAq3J1MMxBa6wBCIHg7tEPamDSMA==",
       "type": "package",
-      "path": "messagepackanalyzer/2.1.152",
+      "path": "messagepackanalyzer/2.5.124",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "LICENSE",
         "analyzers/dotnet/MessagePackAnalyzer.dll",
-        "messagepackanalyzer.2.1.152.nupkg.sha512",
+        "messagepackanalyzer.2.5.124.nupkg.sha512",
         "messagepackanalyzer.nuspec",
         "tools/install.ps1",
         "tools/uninstall.ps1"
@@ -9900,6 +9899,7 @@
   },
   "projectFileDependencyGroups": {
     "net7.0": [
+      "MessagePackAnalyzer >= 2.5.124",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 6.0.6",
       "Microsoft.AspNetCore.Identity.UI >= 6.0.6",
       "Microsoft.EntityFrameworkCore >= 6.0.6",
@@ -9910,19 +9910,19 @@
     ]
   },
   "packageFolders": {
-    "/Users/jinyizhou/.nuget/packages/": {}
+    "/Users/xsyang/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/LMS.csproj",
+      "projectUniqueName": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj",
       "projectName": "LMS",
-      "projectPath": "/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/LMS.csproj",
-      "packagesPath": "/Users/jinyizhou/.nuget/packages/",
-      "outputPath": "/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/",
+      "projectPath": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj",
+      "packagesPath": "/Users/xsyang/.nuget/packages/",
+      "outputPath": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/jinyizhou/.nuget/NuGet/NuGet.Config"
+        "/Users/xsyang/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
@@ -9948,6 +9948,12 @@
       "net7.0": {
         "targetAlias": "net7.0",
         "dependencies": {
+          "MessagePackAnalyzer": {
+            "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[2.5.124, )"
+          },
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
             "target": "Package",
             "version": "[6.0.6, )"

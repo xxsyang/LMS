@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/LMS.csproj": {}
+    "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj": {}
   },
   "projects": {
-    "/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/LMS.csproj": {
+    "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/LMS.csproj",
+        "projectUniqueName": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj",
         "projectName": "LMS",
-        "projectPath": "/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/LMS.csproj",
-        "packagesPath": "/Users/jinyizhou/.nuget/packages/",
-        "outputPath": "/Users/jinyizhou/myGithubRepo/LMS/LMSHandout/LMS/obj/",
+        "projectPath": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/LMS.csproj",
+        "packagesPath": "/Users/xsyang/.nuget/packages/",
+        "outputPath": "/Users/xsyang/Documents/GitHub/LMS/LMSHandout/LMS/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/jinyizhou/.nuget/NuGet/NuGet.Config"
+          "/Users/xsyang/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
@@ -40,6 +40,12 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "MessagePackAnalyzer": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.5.124, )"
+            },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
               "version": "[6.0.6, )"

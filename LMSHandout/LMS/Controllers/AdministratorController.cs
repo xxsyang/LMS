@@ -175,21 +175,8 @@ namespace LMS.Controllers
             db.Classes.Add(newClass);
             db.SaveChanges();
 
-            //return Json(new { success = true });
-
             return Json(new { success = false });
         }
-
-        //        public uint ClassId { get; set; }
-        //public string Season { get; set; } = null!;
-        //public uint Year { get; set; }
-        //public string Location { get; set; } = null!;
-        //public TimeOnly StartTime { get; set; }
-        //public TimeOnly EndTime { get; set; }
-        //public uint Listing { get; set; }
-        //public string? TaughtBy { get; set; }
-        /*******End code to modify********/
-
     }
 }
 
