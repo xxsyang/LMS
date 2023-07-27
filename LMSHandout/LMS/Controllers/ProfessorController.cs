@@ -361,9 +361,10 @@ namespace LMS_CustomIdentity.Controllers
         public IActionResult GetSubmissionsToAssignment(string subject, int num, string season, int year, string category, string asgname)
         {
             //String subject
-            var query = from sub in db.Submissions
-                        join 
+            //var query = from sub in db.Submissions
+            //            join 
 
+            //var query = 
 
             return Json(null);
         }
