@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using LMS.Models.LMSModels;
@@ -76,24 +77,26 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetMyClasses(string uid)
         {
-            var query = from en in db.Enrolleds
-                        join c in db.Classes
-                        on en.Class equals c.ClassId into left
+            var query =
+                from en in db.Enrolleds
+                join c in db.Classes
+                on en.Class equals c.ClassId into left
 
-                        from l in left
-                        join r in db.Courses
-                        on l.Listing equals r.CatalogId
-                        where en.Student == uid
+                from l in left
+                join r in db.Courses
+                on l.Listing equals r.CatalogId
+                where en.Student == uid
+                //from co in db.Courses
 
-                        select new
-                        {
-                            subject = r.Department,
-                            number = r.Number,
-                            name = r.Name,
-                            season = l.Season,
-                            year = l.Year,
-                            grade = en.Grade
-                        };
+                select new
+                {
+                    subject = r.Department,
+                    number = r.Number,
+                    name = r.Name,
+                    season = l.Season,
+                    year = l.Year,
+                    grade = en.Grade
+                };
 
 
             return Json(query.ToArray());
@@ -119,7 +122,7 @@ namespace LMS.Controllers
             var query = from cl in db.Classes
 
                         join ac in db.AssignmentCategories
-                        on cl.ClassId equals ac.CategoryId
+                        on cl.ClassId equals ac.InClass
 
                         join a in db.Assignments
                         on ac.CategoryId equals a.Category
@@ -186,7 +189,9 @@ namespace LMS.Controllers
         {
             bool submitted = false;
 
-            var assignmentQuery = (from c in db.Classes
+            var assignmentQuery =
+
+                                   from c in db.Classes
                                    join co in db.Courses
                                    on c.Listing equals co.CatalogId
                                    join ac in db.AssignmentCategories
@@ -195,43 +200,41 @@ namespace LMS.Controllers
                                    on ac.CategoryId equals a.Category
 
                                    where co.Department == subject
-                                   where co.Number == num
-                                   where c.Season == season
-                                   where c.Year == year
-                                   where ac.Name == asgname
+                                   && co.Number == num
+                                   && c.Season == season
+                                   && c.Year == year
+                                   && ac.Name == category
+                                   && a.Name == asgname
+                                   select a.AssignmentId;
 
-                                   select new
-                                   {
-                                       assignmentId = a.AssignmentId,
-                                       //assignmentName = a.Name,
-                                       //classId = c.ClassId
-                                   }).FirstOrDefault();
 
+            System.Diagnostics.Debug.WriteLine(assignmentQuery);
+
+
+            // TODO fix query
+            // TODO update: probably fixed, still testing!
             var submissionQuery = (from sub in db.Submissions
-                                   where sub.Assignment == assignmentQuery.assignmentId
+                                   where sub.Assignment == assignmentQuery.First() // Sequence contains no elements
                                    where sub.Student == uid
                                    select sub).FirstOrDefault();
 
             if (submissionQuery == null) // if no submission
             {
                 // create submission
-                //uint idCount = 1;
 
-                if (db.Submissions.Any())
-                {
-                    //var last = db.Submissions.OrderBy(x => x.Time).Last(); // last submitted entry
-                    //var id = last.
+                //if (db.Submissions.Any())
+                //{
+                //
+                //}
 
-                    Submission submission = new Submission();
-
-                    submission.Student = uid;
-                    submission.Assignment = assignmentQuery.assignmentId;
-                    submission.SubmissionContents = contents;
-                    submission.Time = DateTime.Now;
-                    submission.Score = 0;
-
-                    db.Add(submission);
-                }
+                Submission submission = new Submission();
+                submission.Student = uid;
+                submission.Assignment = assignmentQuery.First();
+                submission.SubmissionContents = contents;
+                submission.Time = DateTime.Now;
+                submission.Score = 0;
+                //db.Add(submission);
+                db.Submissions.Add(submission);
             }
             else // already submitted
             {
@@ -243,9 +246,7 @@ namespace LMS.Controllers
             db.SaveChanges();
 
             return Json(new { success = submitted });
-            //return Json(null);
         }
-
 
         /// <summary>
         /// Enrolls a student in a class.
@@ -300,7 +301,6 @@ namespace LMS.Controllers
             //else enrolled = false;
 
             return Json(new { success = enrolled });
-            //return Json(null);
         }
 
 
@@ -407,7 +407,12 @@ namespace LMS.Controllers
                 }
             }
 
-            double gpaValue = grades / gradeCount;
+            double gpaValue = 0;
+
+            if (gradeCount != 0)
+            {
+                gpaValue = grades / gradeCount;
+            }
 
             return Json(new { gpa = gpaValue });
             //return Json(null);
