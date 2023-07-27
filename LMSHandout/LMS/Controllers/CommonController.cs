@@ -61,21 +61,20 @@ namespace LMS.Controllers
         /// </summary>
         /// <returns>The JSON array</returns>
         public IActionResult GetCatalog()
-
         {
             var query = from c in db.Courses
                         join d in db.Departments on c.Department equals d.Subject
+                        group c by new { d.Subject, d.Name } into departmentGroup
                         select new
                         {
-                            subject = d.Subject,
-                            dname = d.Name,
-                            courses = db.Courses.Where(course => course.Department == d.Subject)
-                                        .Select(course => new
-                                        {
-                                            number = course.Number,
-                                            cname = course.Name
-                                        }).ToArray()
-
+                            subject = departmentGroup.Key.Subject,
+                            dname = departmentGroup.Key.Name,
+                            courses = departmentGroup.Select(course => new
+                            {
+                                number = course.Number,
+                                cname = course.Name
+                            })
+                                      .ToArray()
                         };
 
             return Json(query.ToArray());

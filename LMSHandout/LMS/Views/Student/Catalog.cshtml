@@ -91,7 +91,7 @@ ViewData["Title"] = "Catalog";
         url: '@Url.Action("GetCatalog", "Common")',
         dataType: 'json',
         success: function (data, status) {
-          //alert(JSON.stringify(data));
+          alert(JSON.stringify(data));
           $.each(data, function (i, item) {
             var newDiv = MakeDepartmentTable();
             SetDepartmentName(newDiv, item.subject + ": " + item.dname);
