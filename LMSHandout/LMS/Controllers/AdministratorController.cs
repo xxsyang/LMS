@@ -67,7 +67,7 @@ namespace LMS.Controllers
                 Subject = subject
             };
 
-            Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + department.Subject);
+            //Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + department.Subject);
             db.Departments.Add(department);
             db.SaveChanges();
 
@@ -192,10 +192,9 @@ namespace LMS.Controllers
             }
 
             var getCourseID = from co in db.Courses
-                              join cl in db.Classes on co.CatalogId equals cl.Listing
                               where co.Department == subject && co.Number == number
                               select co.CatalogId;
-
+          
             uint CourseNumber = getCourseID.FirstOrDefault();
 
             var newClass = new Class
