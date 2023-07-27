@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -50,12 +51,23 @@ namespace LMS.Controllers
         /// false if the department already exists, true otherwise.</returns>
         public IActionResult CreateDepartment(string subject, string name)
         {
+            var query = from d in db.Departments
+                        where d.Subject == subject
+                        select d.Subject;
+
+
+            if (query.Any())
+            {
+                return Json(new { success = false });
+            }
+
             var department = new Department
             {
                 Name = name,
                 Subject = subject
             };
 
+            Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + department.Subject);
             db.Departments.Add(department);
             db.SaveChanges();
 
@@ -75,10 +87,11 @@ namespace LMS.Controllers
         {
             var query = from c in db.Courses
                         join d in db.Departments on c.Department equals d.Subject
+                        where c.Department == subject
                         select new
                         {
                             number = c.Number,
-                            name = c.Name
+                            name = c.Name 
                         };
 
             return Json(query.ToArray());
@@ -124,12 +137,22 @@ namespace LMS.Controllers
         {
             uint CourseNumber = (uint)number;
 
+            var checkCourse = from co in db.Courses
+                              where co.Number == number && co.Department == subject
+                              select co.CatalogId;
+
+            if (checkCourse.Any())
+            {
+                return Json(new { success = false });
+
+            }
 
             var course = new Course
             {
                 Department = subject,
                 Number = CourseNumber,
                 Name = name
+                
             };
 
             db.Courses.Add(course);
@@ -158,8 +181,22 @@ namespace LMS.Controllers
         /// true otherwise.</returns>
         public IActionResult CreateClass(string subject, int number, string season, int year, DateTime start, DateTime end, string location, string instructor)
         {
-            uint CourseNumber = (uint)number;
+            var checkOccupies = from cl in db.Classes
+                                where cl.Season == season && cl.Year == year && cl.StartTime == TimeOnly.FromDateTime(start) && cl.EndTime == TimeOnly.FromDateTime(end) && cl.Location == location
+                                select cl.ClassId;
 
+            if (checkOccupies.Any())
+            {
+                return Json(new { success = false });
+
+            }
+
+            var getCourseID = from co in db.Courses
+                              join cl in db.Classes on co.CatalogId equals cl.Listing
+                              where co.Department == subject && co.Number == number
+                              select co.CatalogId;
+
+            uint CourseNumber = getCourseID.FirstOrDefault();
 
             var newClass = new Class
             {
@@ -169,13 +206,13 @@ namespace LMS.Controllers
                 EndTime = TimeOnly.FromDateTime(end),
                 Location = location,
                 TaughtBy = instructor,
-
+                Listing = CourseNumber
             };
 
             db.Classes.Add(newClass);
             db.SaveChanges();
 
-            return Json(new { success = false });
+            return Json(new { success = true });
         }
     }
 }
