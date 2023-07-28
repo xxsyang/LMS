@@ -10,8 +10,8 @@ using LMS.Models.LMSModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Formats.Asn1.AsnWriter;
+
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -137,7 +137,9 @@ namespace LMS_CustomIdentity.Controllers
                             grade = e.Grade
                         };
 
-            return Json(query.ToArray());
+            Debug.WriteLine("+++++++++++++++++++++++++++++++++++++++++++++++++++++++" + query.FirstOrDefault().fname);
+
+            return Json(query.ToList());
         }
 
 
@@ -251,28 +253,6 @@ namespace LMS_CustomIdentity.Controllers
                 return Json(new { success = false });
             }
 
-            //var getAssignmentCategories = from ac in db.AssignmentCategories
-            //                              join cl in db.Classes on ac.InClass equals cl.ClassId
-            //                              join co in db.Courses on cl.Listing equals co.CatalogId
-            //                              where co.Department == subject && co.Number == num && cl.Season == season && cl.Year == year
-            //                              select new
-            //                              {
-            //                                  weight = ac.Weight
-            //                              };
-
-            //var assignmentCategories = getAssignmentCategories.ToArray();
-
-            //foreach (var ac in assignmentCategories)
-            //{
-            //    weightCount = weightCount + (int)ac.weight;
-            //}
-
-            //if (weightCount + catweight > 100)
-            //{
-            //    categoryExists = true;
-            //    return Json(new { success = false });
-            //}
-
             var getCategory = from ac in db.AssignmentCategories
                               join cl in db.Classes on ac.InClass equals cl.ClassId
                               join co in db.Courses on cl.Listing equals co.CatalogId
@@ -342,14 +322,12 @@ namespace LMS_CustomIdentity.Controllers
                              select cl.ClassId;
 
             uint classID = (uint)getClassID.FirstOrDefault();
-            //Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + classID + "\n");
 
             var getCategoryID = from ac in db.AssignmentCategories
                                 where ac.InClass == classID && ac.Name == category
                                 select ac.CategoryId;
 
             uint categoryID = (uint)getCategoryID.FirstOrDefault();
-            //Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + categoryID + "\n");
 
             var newAssignment = new Assignment
             {
@@ -362,6 +340,19 @@ namespace LMS_CustomIdentity.Controllers
 
             db.Assignments.Add(newAssignment);
             db.SaveChanges();
+
+            //////////////update grade part
+            var getStudentList = from en in db.Enrolleds
+                                 where en.Class == classID
+                                 select en;
+
+            foreach(var student in getStudentList)
+            {
+                AutoGradeClass(subject, num, season, year, student.Student, classID);
+            }
+
+
+
 
             return Json(new { success = true });
         }
@@ -445,11 +436,33 @@ namespace LMS_CustomIdentity.Controllers
 
             if (submission == null)
             {
-                return Json(new { success = false });
+                submission.Score = 0;
             }
 
             submission.Score = (uint)score;
             db.SaveChanges();
+
+            //////////////update grade part
+
+            var getClassID = from co in db.Courses
+                             join cl in db.Classes on co.CatalogId equals cl.Listing
+                             where co.Department == subject && co.Number == num && cl.Season == season && cl.Year == year
+                             select cl.ClassId;
+
+            uint classID = (uint)getClassID.FirstOrDefault();
+
+            var getStudentList = from en in db.Enrolleds
+                                 where en.Class == classID
+                                 select en;
+
+            getStudentList.ToList();
+
+            foreach (var student in getStudentList)
+            {
+                AutoGradeClass(subject, num, season, year, student.Student, classID);
+            }
+
+
 
             return Json(new { success = true });
         }
@@ -507,39 +520,6 @@ namespace LMS_CustomIdentity.Controllers
                                 where co.Department == subject && co.Number == num && cl.Season == season && cl.Year == year && ac.Name == category
                                 select ass.Category;
 
-            var getAllAssignInClass = from ass in db.Assignments
-                                      join ac in db.AssignmentCategories on ass.Category equals ac.CategoryId
-                                      join cl in db.Classes on ac.InClass equals cl.ClassId
-                                      join co in db.Courses on cl.Listing equals co.CatalogId
-                                      where co.Department == subject && co.Number == num && cl.Season == season && cl.Year == year
-                                      select ass;
-
-
-            var query2 = from ass in getAllAssignInClass
-                         join s in db.Submissions
-                         on new { A = ass.AssignmentId, B = uid } equals new { A = s.Assignment, B = s.Student }
-                         into joined
-                         from j in joined.DefaultIfEmpty()
-                         select new
-                         {
-                             AssignmentId = ass.AssignmentId,
-                             // Include other assignment properties you want to retain
-
-                             // Score will be null if there is no matching submission
-                             Score = j.Score // Using null-conditional operator (C# 6.0 and above)
-                         };
-
-            // Update scores for missing submissions (scores will be null)
-            foreach (var item in query2)
-            {
-                if (item.Score == null)
-                {
-                    // Set the score for missing submissions (students who did not submit) to 0
-                    item.Score = 0;
-                }
-            }
-
-
 
             if (!checkIsAssign.Any())
             {
@@ -559,6 +539,9 @@ namespace LMS_CustomIdentity.Controllers
                                                     score = sub.Score,
                                                 };
 
+            getOneAssignmentCategoryScore.ToList();
+
+
             var getMaxScores = from ass in db.Assignments
                                join ac in db.AssignmentCategories on ass.Category equals ac.CategoryId
                                join cl in db.Classes on ac.InClass equals cl.ClassId
@@ -569,6 +552,8 @@ namespace LMS_CustomIdentity.Controllers
                                {
                                    maxScore = ass.MaxPoints,
                                };
+
+            getMaxScores.ToList();
 
             foreach (var eachMaxscore in getMaxScores)
             {
@@ -596,19 +581,12 @@ namespace LMS_CustomIdentity.Controllers
         /// <param name="category">The name of the assignment category in the class</param>
         /// <param name="uid">The uid of the student who's submission is being graded</param>
         /// <returns>A double score number</returns>
-        public IActionResult AutoGradeClass(string subject, int num, string season, int year, string uid)
+        public IActionResult AutoGradeClass(string subject, int num, string season, int year, string uid, uint classID)
         {
             double percentageTimesWeight = 0.0;
             double sum0fpercentageTimesWeight = 0.0;
 
-            var getClassID = from co in db.Courses
-                             join cl in db.Classes on co.CatalogId equals cl.Listing
-                             where co.Department == subject && co.Number == num && cl.Season == season && cl.Year == year
-                             select cl.ClassId;
-
-            uint classID = (uint)getClassID.FirstOrDefault();
-
-            var getAssignmentCategoryWeight = from ac in db.AssignmentCategories
+            var getAssignmentCategoryWeight = (from ac in db.AssignmentCategories
                                               join cl in db.Classes on ac.InClass equals cl.ClassId
                                               join co in db.Courses on cl.Listing equals co.CatalogId
                                               where co.Department == subject && co.Number == num && cl.Season == season && cl.Year == year
@@ -616,11 +594,12 @@ namespace LMS_CustomIdentity.Controllers
                                               {
                                                   acName = ac.Name,
                                                   weights = ac.Weight
-                                              };
+                                              }).ToArray();
 
 
             foreach (var eachAssignmentCategory in getAssignmentCategoryWeight)
             {
+                Debug.WriteLine("eachAssignmentCategory-------------------------------------------------------------------------------------" + eachAssignmentCategory.acName);
                 double categoryScore = AutoGradeAssignmentsInCategory(subject, num, season, year, eachAssignmentCategory.acName, uid);
 
                 if (categoryScore == -1.0)
@@ -631,59 +610,73 @@ namespace LMS_CustomIdentity.Controllers
                 sum0fpercentageTimesWeight = sum0fpercentageTimesWeight + percentageTimesWeight;
             }
 
+            double scalingFactor = 100 / sum0fpercentageTimesWeight;
+
+            double totalPercentage = sum0fpercentageTimesWeight * scalingFactor;
+
+            String grade = ConvertToLetterGrade(totalPercentage);
+
+            var getGrade = from en in db.Enrolleds
+                           where en.Student == uid && en.Class == classID
+                           select en.Grade;
+
+
+            var autoGrade = db.Enrolleds.FirstOrDefault(e => e.Student == uid && e.Class == classID);
+
+            autoGrade.Grade = grade;
+            db.SaveChanges();
+
+
             return Json(new { success = true });
         }
 
-        private static string convertToLetterGrade(int weightSum, double percent)
+        private static string ConvertToLetterGrade(double totalPercentage)
         {
             Console.WriteLine("Calculating grade.");
-            double scaling_factor = 100 / (double)weightSum;
-            double percentGrade = percent * scaling_factor;
-
             string letterGrade = "--";
 
-            if (percentGrade >= 92)
+            if (totalPercentage >= 92)
             {
                 letterGrade = "A";
             }
 
-            else if (percentGrade >= 90)
+            else if (totalPercentage >= 90)
             {
                 letterGrade = "A-";
             }
-            else if (percentGrade >= 88)
+            else if (totalPercentage >= 88)
             {
                 letterGrade = "B+";
             }
-            else if (percentGrade >= 82)
+            else if (totalPercentage >= 82)
             {
                 letterGrade = "B";
             }
-            else if (percentGrade >= 80)
+            else if (totalPercentage >= 80)
             {
                 letterGrade = "B-";
             }
-            else if (percentGrade >= 78)
+            else if (totalPercentage >= 78)
             {
                 letterGrade = "C+";
             }
-            else if (percentGrade >= 72)
+            else if (totalPercentage >= 72)
             {
                 letterGrade = "C";
             }
-            else if (percentGrade >= 70)
+            else if (totalPercentage >= 70)
             {
                 letterGrade = "C-";
             }
-            else if (percentGrade >= 68)
+            else if (totalPercentage >= 68)
             {
                 letterGrade = "D+";
             }
-            else if (percentGrade >= 62)
+            else if (totalPercentage >= 62)
             {
                 letterGrade = "D";
             }
-            else if (percentGrade >= 60)
+            else if (totalPercentage >= 60)
             {
                 letterGrade = "D-";
             }
