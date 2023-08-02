@@ -10,5 +10,8 @@ namespace LMS.Models.LMSModels
         public uint Score { get; set; }
         public string? SubmissionContents { get; set; }
         public DateTime Time { get; set; }
+
+        public virtual Assignment AssignmentNavigation { get; set; } = null!;
+        public virtual Student StudentNavigation { get; set; } = null!;
     }
 }
