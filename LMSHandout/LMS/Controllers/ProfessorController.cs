@@ -9,6 +9,7 @@ using System.Xml.Linq;
 using LMS.Models.LMSModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using static System.Formats.Asn1.AsnWriter;
 
@@ -137,7 +138,7 @@ namespace LMS_CustomIdentity.Controllers
                             grade = e.Grade
                         };
 
-            Debug.WriteLine("+++++++++++++++++++++++++++++++++++++++++++++++++++++++" + query.FirstOrDefault().fname);
+            //Debug.WriteLine("+++++++++++++++++++++++++++++++++++++++++++++++++++++++" + query.FirstOrDefault().fname);
 
             return Json(query.ToList());
         }
@@ -162,6 +163,19 @@ namespace LMS_CustomIdentity.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetAssignmentsInCategory(string subject, int num, string season, int year, string category)
         {
+            var thisCourse = db.Courses.Where(co => co.Number == num && co.Department == subject).Single();
+            var thisClass = db.Classes.Where(c => c.Season == season && c.Year == year && c.Listing == thisCourse.CatalogId).Single();
+
+            ICollection<Assignment> assignments = null;
+            if (category == null)
+            {
+                assignments = db.Assignments.Where(ass => ass.CategoryNavigation.InClass == thisClass.ClassId).ToList();
+            }
+            else
+            {
+                assignments = db.Assignments.Where(ass => ass.CategoryNavigation.Name == category && ass.CategoryNavigation.InClass == thisClass.ClassId).ToList();
+            }
+
 
             if (category == null)
             {
@@ -179,6 +193,7 @@ namespace LMS_CustomIdentity.Controllers
                                                               where sub.Assignment == ass.AssignmentId
                                                               select sub.Assignment).Count()
                                            };
+                
 
                 return Json(queryWithoutCategory.ToArray());
             }
@@ -245,7 +260,6 @@ namespace LMS_CustomIdentity.Controllers
         public IActionResult CreateAssignmentCategory(string subject, int num, string season, int year, string category, int catweight)
         {
             bool categoryExists = false;
-            //int weightCount = 0;
 
             if (catweight < 0)
             {
@@ -271,30 +285,23 @@ namespace LMS_CustomIdentity.Controllers
 
             uint classID = (uint)getClassID.FirstOrDefault();
 
+            Class thisClass = db.Classes.Where(c => c.ListingNavigation.Department == subject && c.ListingNavigation.Number == num && c.Season == season && c.Year == year).SingleOrDefault();
+            if (thisClass == null)
+            {
+                return Json(new { success = false });
+
+            }
             var newAssignmentCategory = new AssignmentCategory
             {
                 Name = category,
                 InClass = classID,
                 Weight = (uint)catweight,
-
+                InClassNavigation = thisClass
             };
+
 
             db.AssignmentCategories.Add(newAssignmentCategory);
             db.SaveChanges();
-
-
-            //update score
-            var getStudentList = from en in db.Enrolleds
-                                 where en.Class == classID
-                                 select en;
-
-
-
-            foreach (var student in getStudentList)
-            {
-                AutoGradeClass(student.Student, classID);
-            }
-
 
             return Json(new { success = true });
 
@@ -337,11 +344,15 @@ namespace LMS_CustomIdentity.Controllers
 
             uint classID = (uint)getClassID.FirstOrDefault();
 
+            Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& classID" + classID);
+
             var getCategoryID = from ac in db.AssignmentCategories
-                                where ac.InClass == classID && ac.Name == asgname
+                                where ac.InClass == classID && ac.Name == category
                                 select ac.CategoryId;
 
             uint categoryID = (uint)getCategoryID.FirstOrDefault();
+
+            Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& categoryID" + categoryID);
 
             var newAssignment = new Assignment
             {
@@ -352,21 +363,22 @@ namespace LMS_CustomIdentity.Controllers
                 Name = asgname
             };
 
-            db.Assignments.Add(newAssignment);
+            db.Add(newAssignment);
             db.SaveChanges();
 
             //////////////update grade part
-            var getStudentList = from en in db.Enrolleds
-                                 where en.Class == classID
-                                 select en;
+            var thisClass = db.Classes.Where(c => c.ListingNavigation.Department == subject && c.ListingNavigation.Number == num && c.Season == season && c.Year == year).SingleOrDefault();
 
-            foreach (var student in getStudentList)
+            if (thisClass == null)
             {
-                AutoGradeClass(student.Student, classID);
+                return Json(new { success = false });
             }
 
 
-
+            foreach (Student student in thisClass.Enrolleds.Select(enr => enr.StudentNavigation))
+            {
+                UpdateGrade(student, thisClass);
+            }
 
             return Json(new { success = true });
         }
@@ -430,44 +442,37 @@ namespace LMS_CustomIdentity.Controllers
                 return Json(new { success = false });
             }
 
-            var getAssignmentId = from sub in db.Submissions
-                                  join ass in db.Assignments on sub.Assignment equals ass.AssignmentId
-                                  join ac in db.AssignmentCategories on ass.Category equals ac.CategoryId
-                                  join cl in db.Classes on ac.InClass equals cl.ClassId
-                                  join co in db.Courses on cl.Listing equals co.CatalogId
-                                  join stu in db.Students on sub.Student equals stu.UId
-                                  where co.Department == subject && co.Number == num
-                                                                 && cl.Season == season
-                                                                 && cl.Year == year && ac.Name == category && ass.Name == asgname && sub.Student == uid
-                                  select new
-                                  {
-                                     id = sub.Assignment,
-                                  };
 
-            uint assignmentID = getAssignmentId.FirstOrDefault().id;
+            var thisClass = db.Classes.Where(c => c.ListingNavigation.Department == subject && c.ListingNavigation.Number == num && c.Season == season && c.Year == year).SingleOrDefault();
+            var student = db.Students.Where(s => s.UId == uid).SingleOrDefault();
 
-            var submission = db.Submissions.FirstOrDefault(s => s.Assignment == assignmentID && s.Student == uid);
+
+            Debug.WriteLine("-----------------------------------------------------------------------------------thisClass" + thisClass.ClassId);
+
+            if (thisClass == null)
+                return Json(new { success = false });
+
+            var assignment = db.Assignments.Where(ass => ass.Name == asgname && ass.CategoryNavigation.Name == category && ass.CategoryNavigation.InClass == thisClass.ClassId).SingleOrDefault();
+
+            Debug.WriteLine("-----------------------------------------------------------------------------------assignment.AssignmentId GradeSubmission" + assignment.AssignmentId);
+
+            if (student == null || assignment == null)
+                return Json(new { success = false });
+
+            var submission = db.Submissions.Where(sub => sub.Student == uid && sub.Assignment == assignment.AssignmentId).SingleOrDefault();
+
+            Debug.WriteLine("-----------------------------------------------------------------------------------submission.Student GradeSubmission" + submission.Student);
 
             if (submission == null)
-            {
                 return Json(new { success = false });
-            }
+
 
             submission.Score = (uint)score;
+            db.Update(submission);
             db.SaveChanges();
 
-            //////////////update grade part
-
-            var getClassID = from co in db.Courses
-                             join cl in db.Classes on co.CatalogId equals cl.Listing
-                             where co.Department == subject && co.Number == num && cl.Season == season && cl.Year == year
-                             select cl.ClassId;
-
-            uint classID = (uint)getClassID.FirstOrDefault();
-
-
-            AutoGradeClass(uid, classID);
-            
+            // updates grade
+            UpdateGrade(student, thisClass);
 
             return Json(new { success = true });
         }
@@ -503,197 +508,66 @@ namespace LMS_CustomIdentity.Controllers
         }
 
 
-        /// <summary>
-        /// Returns a double score for one Assignment Category, if there is no assginments in Category, then return -1.0
-        /// </summary>
-        /// <param name="subject">The course subject abbreviation</param>
-        /// <param name="num">The course number</param>
-        /// <param name="season">The season part of the semester for the class the assignment belongs to</param>
-        /// <param name="year">The year part of the semester for the class the assignment belongs to</param>
-        /// <param name="category">The name of the assignment category in the class</param>
-        /// <param name="uid">The uid of the student who's submission is being graded</param>
-        /// <returns>A double score number or -1.0(if there is no assginments in Category)</returns>
-        //public double AutoGradeAssignmentsInCategory(string subject, int num, string season, int year, string category, string uid)
-        //{
-        //    uint scoreOnEachAssCategory = 0;
-        //    uint maxScore = 0;
-
-            //var checkIsAssign = from ass in db.Assignments
-            //                    join ac in db.AssignmentCategories on ass.Category equals ac.CategoryId
-            //                    join cl in db.Classes on ac.InClass equals cl.ClassId
-            //                    join co in db.Courses on cl.Listing equals co.CatalogId
-            //                    where co.Department == subject && co.Number == num && cl.Season == season && cl.Year == year && ac.Name == category
-            //                    select ass.Category;
-
-
-            //if (!checkIsAssign.Any())
-            //{
-            //    return -1.0;
-            //}
-
-            //var getOneAssignmentCategoryScore = from sub in db.Submissions
-            //                                    join ass in db.Assignments on sub.Assignment equals ass.AssignmentId
-            //                                    join ac in db.AssignmentCategories on ass.Category equals ac.CategoryId
-            //                                    join cl in db.Classes on ac.InClass equals cl.ClassId
-            //                                    join co in db.Courses on cl.Listing equals co.CatalogId
-            //                                    join stu in db.Students on sub.Student equals stu.UId
-            //                                    where co.Department == subject && co.Number == num && cl.Season == season
-            //                                          && cl.Year == year && ac.Name == category && sub.Student == uid
-            //                                    select new
-            //                                    {
-            //                                        score = sub.Score,
-            //                                    };
-
-            //getOneAssignmentCategoryScore.ToList();
-
-
-            //var getMaxScores = from ass in db.Assignments
-            //                   join ac in db.AssignmentCategories on ass.Category equals ac.CategoryId
-            //                   join cl in db.Classes on ac.InClass equals cl.ClassId
-            //                   join co in db.Courses on cl.Listing equals co.CatalogId
-            //                   where co.Department == subject && co.Number == num && cl.Season == season
-            //                         && cl.Year == year && ac.Name == category
-            //                   select new
-            //                   {
-            //                       maxScore = ass.MaxPoints,
-            //                   };
-
-            //getMaxScores.ToList();
-
-            //foreach (var eachMaxscore in getMaxScores)
-            //{
-            //    maxScore = maxScore + eachMaxscore.maxScore;
-            //}
-
-            //foreach (var eachSubScore in getOneAssignmentCategoryScore)
-            //{
-            ////    scoreOnEachAssCategory = scoreOnEachAssCategory + eachSubScore.score;
-            //}
-
-            //Double percentage = scoreOnEachAssCategory / maxScore;
-            //double roundedResult = Math.Round(percentage, 3);
-
-        //    return -1;
-        //}
-
-        /// <summary>
-        /// Returns a double score for one Assignment Category
-        /// </summary>
-        /// <param name="subject">The course subject abbreviation</param>
-        /// <param name="num">The course number</param>
-        /// <param name="season">The season part of the semester for the class the assignment belongs to</param>
-        /// <param name="year">The year part of the semester for the class the assignment belongs to</param>
-        /// <param name="category">The name of the assignment category in the class</param>
-        /// <param name="uid">The uid of the student who's submission is being graded</param>
-        /// <returns>A double score number</returns>
-        public  void AutoGradeClass(string uid, uint classID)
+        void UpdateGrade(Student student, Class thisClass)
         {
-            //uint sumScoreOnEachAssCategory = 0;
-            //uint maxScore = 0;
-            double percentageTimesWeight = 0.0;
-            double sum0fpercentageTimesWeight = 0.0;
-            uint categoryID = 0;
-            uint scoreAdded = 0;
-            double percentage = 0;
-            double roundedResult = 0; 
+            var enr = db.Enrolleds.Where(enr => enr.Student == student.UId && enr.Class == thisClass.ClassId).Single();
 
+            thisClass.AssignmentCategories = db.AssignmentCategories.Where(ac => ac.InClass == thisClass.ClassId).ToList();
 
-            var getCategoryList = (from ac in db.AssignmentCategories
-                                  where ac.InClass == classID
-                                  select new
-                                  {
-                                      categoryID = ac.CategoryId,
-                                      weight = ac.Weight
+            Debug.WriteLine("-----------------------------------------------------------------------------------enr.Student " + enr.Student);
+            Debug.WriteLine("-----------------------------------------------------------------------------------thisClass " + thisClass.ClassId);
+            Debug.WriteLine("-----------------------------------------------------------------------------------CategoryId num " + thisClass.AssignmentCategories.Count);
 
-                                  }).ToArray();
-
-
-            foreach(var eachCategory in getCategoryList)
-            {
-
-                categoryID = eachCategory.categoryID;
-
-                var allAssignInCategory = (from ass in db.Assignments
-                                          join ac in db.AssignmentCategories on ass.Category equals categoryID
-                                          select new
-                                          {
-                                              maxScore = ass.MaxPoints,
-                                              aId = ass.AssignmentId
-                                          }).ToArray();
-
-                if(!allAssignInCategory.Any())
+            double allTotalUnscaled = thisClass.AssignmentCategories.Select(
+                // assignment category weight * (sum)
+                ac =>
                 {
-                    continue;
-                }
+                    Debug.WriteLine("-----------------------------------------------------------------------------------ddddddddddddddddddddddddeee " + ac.Name);
 
-                foreach(var eachAssign in allAssignInCategory)
-                {
-                    uint sumScoreOnEachAssCategory = 0;
-                    uint maxScore = 0;
-
-                    maxScore = maxScore + eachAssign.maxScore;
-                    Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!check     maxScore   " + maxScore);
-
-                    var getSubs = (from sub in db.Submissions
-                                  join ass in db.Assignments on sub.Assignment equals eachAssign.aId
-                                  join ac in db.AssignmentCategories on ass.Category equals categoryID
-                                  where sub.Student == uid
-                                   select new
-                                  {
-                                      subScore = sub.Score
-                                  }).ToArray();
-
-                    foreach (var eachSub in getSubs)
+                    ac.Assignments = db.Assignments.Where(ass => ass.Category == ac.CategoryId).ToList();
+                    int earnedPoints = ac.Assignments.Select(ass =>
                     {
-                        if(getSubs.Any())
-                        {
-                            scoreAdded = 0;
-                            Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!check        ");
+                        //ass.Submissions = db.Submissions.Where()
+                        Debug.WriteLine("-----------------------------------------------------------------------------------Submissions count " + ass.Submissions.Count());
+                        
+                        var sub = db.Submissions.Where(sub => sub.Student == student.UId && ass.AssignmentId == sub.Assignment).SingleOrDefault();
+                        //Debug.WriteLine("-----------------------------------------------------------------------------------Submissions" + sub.Score);
 
-                        }
-                        else
-                        {
-                            scoreAdded = eachSub.subScore;
-                        }
-                        sumScoreOnEachAssCategory = sumScoreOnEachAssCategory + scoreAdded;
+                        return sub == null ? 0 : (int)sub.Score;
                     }
+                    ).Sum();
+                    // Total points across all assignments
+                    int totalPoints = ac.Assignments.Sum(ass => (int)ass.MaxPoints);
+                    Debug.WriteLine("-----------------------------------------------------------------------------------totalPoints on one ca " + totalPoints);
 
-                    percentage = sumScoreOnEachAssCategory / maxScore;
-                    roundedResult = Math.Round(percentage, 3);
-                    percentageTimesWeight = roundedResult * eachCategory.weight;
+                    double score = totalPoints == 0 ? 0.0 : (double)earnedPoints / (double)totalPoints;
 
+                    
+                   
+                    double scaledScore = score * (double)ac.Weight;
+                    Debug.WriteLine("-----------------------------------------------------------------------------------scaledScore on one ca " + scaledScore);
+
+                    return scaledScore;
                 }
-                //percentage = sumScoreOnEachAssCategory / maxScore;
-                //roundedResult = Math.Round(percentage, 3);
-                //percentageTimesWeight = roundedResult * eachCategory.weight;
-                sum0fpercentageTimesWeight = sum0fpercentageTimesWeight + percentageTimesWeight;
-            }
+            ).Sum();
 
-            Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!sum0fpercentageTimesWeight        " + sum0fpercentageTimesWeight);
-
-            double scalingFactor = 100 / sum0fpercentageTimesWeight;
-
-            double totalPercentage = sum0fpercentageTimesWeight * scalingFactor;
-
-            Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!totalPercentage        " + totalPercentage);
-
-            String grade = ConvertToLetterGrade(totalPercentage);
-
-            var getGrade = from en in db.Enrolleds
-                           where en.Student == uid && en.Class == classID
-                           select en.Grade;
+            Debug.WriteLine("-----------------------------------------------------------------------------------allTotalUnscaled on one ca " + allTotalUnscaled);
+            // IMPORTANT - there is no rule that assignment
+            // category weights must sum to 100. Therefore, we have to re-scale
+            // This takes the sum of all assignment category weights that are non empty
+            var totalWeights = thisClass.AssignmentCategories.Select(ac =>
+            {
+                var totalPoints = ac.Assignments.Select(ass => (int)ass.MaxPoints).Sum();
+                if (totalPoints == 0)
+                    return 0;
+                else
+                    return (int)ac.Weight;
+            }).Sum();
+            // Avoids dividing by zero; in the case that all assignment weights
+            // are zero, the total scaled score is 0.0 / 100.0
+            double totalPercentage = totalWeights == 0 ? 100.0 : (double)allTotalUnscaled * (100 / (double)totalWeights);
 
 
-            var autoGrade = db.Enrolleds.FirstOrDefault(e => e.Student == uid && e.Class == classID);
-
-            autoGrade.Grade = grade;
-            db.SaveChanges();
-
-        }
-
-        private static string ConvertToLetterGrade(double totalPercentage)
-        {
-            Console.WriteLine("Calculating grade.");
             string letterGrade = "--";
 
             if (totalPercentage >= 92)
@@ -746,8 +620,11 @@ namespace LMS_CustomIdentity.Controllers
                 letterGrade = "E";
             }
 
-            return letterGrade;
+            enr.Grade = letterGrade;
+            db.Update(enr);
+            db.SaveChanges();
 
         }
+
     }
 }
