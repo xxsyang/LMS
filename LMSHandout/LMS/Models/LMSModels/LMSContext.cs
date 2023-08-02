@@ -81,6 +81,13 @@ namespace LMS.Models.LMSModels
                 entity.Property(e => e.MaxPoints).HasColumnType("int(10) unsigned");
 
                 entity.Property(e => e.Name).HasMaxLength(100);
+
+
+                entity.HasOne(d => d.CategoryNavigation)
+                    .WithMany(p => p.Assignments)
+                    .HasForeignKey(d => d.Category)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("Assignments_ibfk_1");
             });
 
             modelBuilder.Entity<AssignmentCategory>(entity =>
@@ -102,6 +109,12 @@ namespace LMS.Models.LMSModels
                 entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.Weight).HasColumnType("int(10) unsigned");
+
+                entity.HasOne(d => d.InClassNavigation)
+                        .WithMany(p => p.AssignmentCategories)
+                        .HasForeignKey(d => d.InClass)
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("AssignmentCategories_ibfk_1");
             });
 
             modelBuilder.Entity<Class>(entity =>
@@ -132,6 +145,17 @@ namespace LMS.Models.LMSModels
                     .IsFixedLength();
 
                 entity.Property(e => e.Year).HasColumnType("int(10) unsigned");
+
+                entity.HasOne(d => d.ListingNavigation)
+                      .WithMany(p => p.Classes)
+                      .HasForeignKey(d => d.Listing)
+                      .OnDelete(DeleteBehavior.ClientSetNull)
+                      .HasConstraintName("Classes_ibfk_1");
+
+                entity.HasOne(d => d.TaughtByNavigation)
+                    .WithMany(p => p.Classes)
+                    .HasForeignKey(d => d.TaughtBy)
+                    .HasConstraintName("Taught");
             });
 
             modelBuilder.Entity<Course>(entity =>
@@ -153,6 +177,12 @@ namespace LMS.Models.LMSModels
                 entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.Number).HasColumnType("int(10) unsigned");
+
+                entity.HasOne(d => d.DepartmentNavigation)
+                        .WithMany(p => p.Courses)
+                        .HasForeignKey(d => d.Department)
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("Courses_ibfk_1");
             });
 
             modelBuilder.Entity<Department>(entity =>
@@ -182,6 +212,19 @@ namespace LMS.Models.LMSModels
                 entity.Property(e => e.Class).HasColumnType("int(10) unsigned");
 
                 entity.Property(e => e.Grade).HasMaxLength(2);
+
+
+                entity.HasOne(d => d.ClassNavigation)
+                      .WithMany(p => p.Enrolleds)
+                      .HasForeignKey(d => d.Class)
+                      .OnDelete(DeleteBehavior.ClientSetNull)
+                      .HasConstraintName("Enrolled_ibfk_2");
+
+                entity.HasOne(d => d.StudentNavigation)
+                      .WithMany(p => p.Enrolleds)
+                      .HasForeignKey(d => d.Student)
+                      .OnDelete(DeleteBehavior.ClientSetNull)
+                      .HasConstraintName("Enrolled_ibfk_1");
             });
 
             modelBuilder.Entity<Professor>(entity =>
@@ -207,6 +250,12 @@ namespace LMS.Models.LMSModels
                     .HasColumnName("lName");
 
                 entity.Property(e => e.WorksIn).HasMaxLength(4);
+
+                entity.HasOne(d => d.WorksInNavigation)
+                    .WithMany(p => p.Professors)
+                    .HasForeignKey(d => d.WorksIn)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("Professors_ibfk_1");
             });
 
             modelBuilder.Entity<Student>(entity =>
@@ -232,6 +281,12 @@ namespace LMS.Models.LMSModels
                     .HasColumnName("lName");
 
                 entity.Property(e => e.Major).HasMaxLength(4);
+
+                entity.HasOne(d => d.MajorNavigation)
+                        .WithMany(p => p.Students)
+                        .HasForeignKey(d => d.Major)
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("Students_ibfk_1");
             });
 
             modelBuilder.Entity<Submission>(entity =>
@@ -253,6 +308,18 @@ namespace LMS.Models.LMSModels
                 entity.Property(e => e.SubmissionContents).HasMaxLength(8192);
 
                 entity.Property(e => e.Time).HasColumnType("datetime");
+
+                entity.HasOne(d => d.AssignmentNavigation)
+                    .WithMany(p => p.Submissions)
+                    .HasForeignKey(d => d.Assignment)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("Submissions_ibfk_1");
+
+                entity.HasOne(d => d.StudentNavigation)
+                    .WithMany(p => p.Submissions)
+                    .HasForeignKey(d => d.Student)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("Submissions_ibfk_2");
             });
 
             OnModelCreatingPartial(modelBuilder);
