@@ -207,7 +207,7 @@ namespace LMS.Controllers
                                    select a.AssignmentId;
 
 
-            System.Diagnostics.Debug.WriteLine(assignmentQuery);
+            //System.Diagnostics.Debug.WriteLine(assignmentQuery);
 
 
             // TODO fix query
@@ -232,6 +232,7 @@ namespace LMS.Controllers
                 submission.SubmissionContents = contents;
                 submission.Time = DateTime.Now;
                 submission.Score = 0;
+                submitted = true;
                 //db.Add(submission);
                 db.Submissions.Add(submission);
             }
