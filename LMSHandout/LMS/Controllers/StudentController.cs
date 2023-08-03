@@ -85,7 +85,6 @@ namespace LMS.Controllers
                 join r in db.Courses
                 on l.Listing equals r.CatalogId
                 where en.Student == uid
-                //from co in db.Courses
 
                 select new
                 {
@@ -99,7 +98,6 @@ namespace LMS.Controllers
 
 
             return Json(query.ToArray());
-            //return Json(null);
         }
 
         /// <summary>
@@ -161,7 +159,6 @@ namespace LMS.Controllers
             }
 
             return Json(result.ToArray());
-            //return Json(null);
         }
 
 
@@ -188,9 +185,7 @@ namespace LMS.Controllers
         {
             bool submitted = false;
 
-            var assignmentQuery =
-
-                                   from c in db.Classes
+            var assignmentQuery =  from c in db.Classes
                                    join co in db.Courses
                                    on c.Listing equals co.CatalogId
                                    join ac in db.AssignmentCategories
@@ -206,26 +201,13 @@ namespace LMS.Controllers
                                    && a.Name == asgname
                                    select a.AssignmentId;
 
-
-            //System.Diagnostics.Debug.WriteLine(assignmentQuery);
-
-
-            // TODO fix query
-            // TODO update: probably fixed, still testing!
             var submissionQuery = (from sub in db.Submissions
-                                   where sub.Assignment == assignmentQuery.First() // Sequence contains no elements
+                                   where sub.Assignment == assignmentQuery.First()
                                    where sub.Student == uid
                                    select sub).FirstOrDefault();
 
             if (submissionQuery == null) // if no submission
             {
-                // create submission
-
-                //if (db.Submissions.Any())
-                //{
-                //
-                //}
-
                 Submission submission = new Submission();
                 submission.Student = uid;
                 submission.Assignment = assignmentQuery.First();
@@ -233,7 +215,6 @@ namespace LMS.Controllers
                 submission.Time = DateTime.Now;
                 submission.Score = 0;
                 submitted = true;
-                //db.Add(submission);
                 db.Submissions.Add(submission);
             }
             else // already submitted
@@ -242,9 +223,7 @@ namespace LMS.Controllers
                 submissionQuery.Time = DateTime.Now;
                 submitted = true;
             }
-
             db.SaveChanges();
-
             return Json(new { success = submitted });
         }
 
@@ -299,7 +278,6 @@ namespace LMS.Controllers
                 db.SaveChanges();
             }
             //else enrolled = false;
-
             return Json(new { success = enrolled });
         }
 
@@ -415,7 +393,6 @@ namespace LMS.Controllers
             }
 
             return Json(new { gpa = gpaValue });
-            //return Json(null);
         }
 
         /*******End code to modify********/
