@@ -201,8 +201,6 @@ namespace LMS.Controllers
                                    && a.Name == asgname
                                    select a.AssignmentId;
 
-
-            System.Diagnostics.Debug.WriteLine(assignmentQuery);
             var submissionQuery = (from sub in db.Submissions
                                    where sub.Assignment == assignmentQuery.First()
                                    where sub.Student == uid
@@ -216,6 +214,7 @@ namespace LMS.Controllers
                 submission.SubmissionContents = contents;
                 submission.Time = DateTime.Now;
                 submission.Score = 0;
+                submitted = true;
                 db.Submissions.Add(submission);
             }
             else // already submitted

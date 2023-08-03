@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using static System.Formats.Asn1.AsnWriter;
 
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -367,17 +366,33 @@ namespace LMS_CustomIdentity.Controllers
             db.SaveChanges();
 
             //////////////update grade part
-            var thisClass = db.Classes.Where(c => c.ListingNavigation.Department == subject && c.ListingNavigation.Number == num && c.Season == season && c.Year == year).SingleOrDefault();
+            var thisClass = db.Classes.Where(c => c.ClassId == classID).SingleOrDefault();
+            Debug.WriteLine("-----------------------------------------------------------------------------------thisClass  ID" + thisClass.ClassId);
 
             if (thisClass == null)
             {
                 return Json(new { success = false });
             }
 
+            int Count = 0;
 
-            foreach (Student student in thisClass.Enrolleds.Select(enr => enr.StudentNavigation))
+            thisClass.Enrolleds = db.Enrolleds.Where(en => en.Class == classID).ToList();
+
+
+            Debug.WriteLine("-----------------------------------------------------------------------------------test!!!!!!" + thisClass.Enrolleds.Select(enr => enr.StudentNavigation).Count());
+
+            var idList = (from e in db.Enrolleds
+                         join s in db.Students on e.Student equals s.UId
+                         join cl in db.Classes on e.Class equals cl.ClassId
+                         where cl.ClassId == classID
+                         select s).ToList();
+
+            foreach (var student in idList)
             {
                 UpdateGrade(student, thisClass);
+                Count++;
+                Debug.WriteLine("-----------------------------------------------------------------------------------Count for update" + Count);
+
             }
 
             return Json(new { success = true });
@@ -508,13 +523,26 @@ namespace LMS_CustomIdentity.Controllers
         }
 
 
+
+
+        /// <summary>
+        /// update the grade after Professor's grading or adding new assignment
+        /// </summary>
+        /// <param name="student">Student</param>
+        /// <param name="thisClass">Student</param>
+
+        /// <returns>void</returns>
         void UpdateGrade(Student student, Class thisClass)
         {
+            //Debug.WriteLine("-----------------------------------------------------------------------------------enr.Student FName " + student.FName);
+
             var enr = db.Enrolleds.Where(enr => enr.Student == student.UId && enr.Class == thisClass.ClassId).Single();
+            //var enr = thisClass.Enrolleds.Where(enr => enr.Student == student.UId).Single();
+
 
             thisClass.AssignmentCategories = db.AssignmentCategories.Where(ac => ac.InClass == thisClass.ClassId).ToList();
 
-            Debug.WriteLine("-----------------------------------------------------------------------------------enr.Student " + enr.Student);
+            //Debug.WriteLine("-----------------------------------------------------------------------------------enr.Student " + enr.Student);
             Debug.WriteLine("-----------------------------------------------------------------------------------thisClass " + thisClass.ClassId);
             Debug.WriteLine("-----------------------------------------------------------------------------------CategoryId num " + thisClass.AssignmentCategories.Count);
 
